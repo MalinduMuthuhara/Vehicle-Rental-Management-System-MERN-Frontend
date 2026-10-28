@@ -70,7 +70,12 @@ export const badgeTone: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-800',
   INACTIVE: 'bg-gray-100 text-gray-600',
   SUSPENDED: 'bg-red-100 text-red-700',
+  // invoice
+  DRAFT: 'bg-gray-100 text-gray-600',
+  ISSUED: 'bg-blue-100 text-blue-800',
+  PAID: 'bg-green-100 text-green-800',
   // payment
   FAILED: 'bg-red-100 text-red-700',
   REFUNDED: 'bg-violet-100 text-violet-800',
+
 }

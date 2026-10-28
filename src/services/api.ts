@@ -144,6 +144,25 @@ export type PaymentData = Omit<Payment,'_id'|'bookingId'|'userId' >&{
     userId: string
 }
 
+//Invoice Interface
+export type InvoiceStatus = 'DRAFT' | 'ISSUED'| 'PAID' | 'CANCELLED'
+export interface Invoice {
+    _id: string
+    invoiceNumber: string
+    bookingId: string | { _id: string }
+    userId: string | { _id: string; userName?: string }
+    subtotal : number
+    taxAmount: number
+    discountAmount: number
+    totalAmount: number
+    issuedDate: string
+    status: InvoiceStatus
+}
+export type InvoiceData = Omit<Invoice,'_id'|'bookingId'|'userId'>&{
+    bookingId : string
+    userId: string
+}
+
 
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -186,4 +205,5 @@ export const categoryApi = makeApi<VehicleCategory>('/vehicle-categories')
 export const bookingApi = makeApi<Booking, BookingData>('/bookings')
 export const rentalApi = makeApi<Rental, RentalData>('/rentals')
 export const paymentApi = makeApi<Payment,PaymentData>('/payments')
+export const invoiceApi = makeApi<Invoice,InvoiceData>('/invoices')
 

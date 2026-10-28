@@ -6,8 +6,9 @@ import BranchManagement from './components/BranchManagement'
 import BookingManagement from './components/BookingManagement'
 import RentalManagement from './components/RentalManagement'
 import PaymentManagement from './components/PaymentManagement'
+import InvoiceManagement from './components/InvoiceManagement'
 
-type Page = 'users' | 'vehicles' | 'vehicleCategories' | 'branch' | 'booking' | 'rental' | 'payments'
+type Page = 'users' | 'vehicles' | 'vehicleCategories' | 'branch' | 'booking' | 'rental' | 'payments' | 'invoices'
 
 const menu: { page: Page; label: string }[] = [
   { page: 'users', label: 'Users' },
@@ -16,6 +17,8 @@ const menu: { page: Page; label: string }[] = [
   { page: 'branch', label: 'Branches' },
   { page: 'booking', label: 'Bookings' },
   { page: 'rental', label: 'Rentals' },
+  { page: 'payments', label: 'Payments' },
+  {page:'invoices',label:'Invoice'}
 ]
 
 function App() {
@@ -47,6 +50,7 @@ function App() {
         {page === 'booking' && <BookingManagement />}
         {page === 'rental' && <RentalManagement />}
         {page === 'payments' && <PaymentManagement />}
+        {page === 'invoices' && <InvoiceManagement />}
       </div>
     </div>
   )
