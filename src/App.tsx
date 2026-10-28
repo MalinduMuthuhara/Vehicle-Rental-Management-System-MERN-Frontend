@@ -5,8 +5,9 @@ import VehicleCategoryManagement from './components/VehicleCategoryManagement'
 import BranchManagement from './components/BranchManagement'
 import BookingManagement from './components/BookingManagement'
 import RentalManagement from './components/RentalManagement'
+import PaymentManagement from './components/PaymentManagement'
 
-type Page = 'users' | 'vehicles' | 'vehicleCategories' | 'branch' | 'booking' | 'rental'
+type Page = 'users' | 'vehicles' | 'vehicleCategories' | 'branch' | 'booking' | 'rental' | 'payments'
 
 const menu: { page: Page; label: string }[] = [
   { page: 'users', label: 'Users' },
@@ -45,6 +46,7 @@ function App() {
         {page === 'branch' && <BranchManagement />}
         {page === 'booking' && <BookingManagement />}
         {page === 'rental' && <RentalManagement />}
+        {page === 'payments' && <PaymentManagement />}
       </div>
     </div>
   )

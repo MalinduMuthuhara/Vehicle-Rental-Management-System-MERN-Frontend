@@ -125,6 +125,25 @@ export type RentalData = Omit<Rental, '_id' | 'bookingId' | 'userId' | 'vehicleI
     vehicleId: string
 }
 
+// Payment Interface
+export type PaymentMethod = 'CASH' | 'CARD' | 'ONLINE'
+export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED'
+
+export interface Payment {
+    _id: string
+    bookingId: string | { _id: string }
+    userId: string | { _id: string; userName?: string }
+    amount: number
+    paymentMethod: PaymentMethod
+    transactionId: string
+    paymentDate: string
+    status: PaymentStatus
+}
+export type PaymentData = Omit<Payment,'_id'|'bookingId'|'userId' >&{
+    bookingId : string
+    userId: string
+}
+
 
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -166,4 +185,5 @@ export const branchApi = makeApi<Branch>('/branches')
 export const categoryApi = makeApi<VehicleCategory>('/vehicle-categories')
 export const bookingApi = makeApi<Booking, BookingData>('/bookings')
 export const rentalApi = makeApi<Rental, RentalData>('/rentals')
+export const paymentApi = makeApi<Payment,PaymentData>('/payments')
 
