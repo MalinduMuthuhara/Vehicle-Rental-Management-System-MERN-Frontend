@@ -160,7 +160,25 @@ export interface Invoice {
 }
 export type InvoiceData = Omit<Invoice,'_id'|'bookingId'|'userId'>&{
     bookingId : string
-    userId: string
+    userId : string
+}
+
+//VehicleMaintenance Interface
+export type MaintenanceStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
+export type MaintenanceType = 'ROUTINE' | 'REPAIR' | 'INSPECTION'
+export interface VehicleMaintenance {
+    _id: string
+    vehicleId: string | { _id: string }
+    maintenanceType : MaintenanceType
+    description : string
+    serviceDate : string
+    cost : number
+    serviceProvider : string
+    nextServiceDate?: string | null
+    status : MaintenanceStatus
+}
+export type VehicleMaintenanceData = Omit<VehicleMaintenance,'_id' | 'vehicleId'>&{
+    vehicleId : string
 }
 
 
@@ -206,4 +224,5 @@ export const bookingApi = makeApi<Booking, BookingData>('/bookings')
 export const rentalApi = makeApi<Rental, RentalData>('/rentals')
 export const paymentApi = makeApi<Payment,PaymentData>('/payments')
 export const invoiceApi = makeApi<Invoice,InvoiceData>('/invoices')
+export const maintenanceApi = makeApi<VehicleMaintenance, VehicleMaintenanceData>('/vehicle-maintenances')
 

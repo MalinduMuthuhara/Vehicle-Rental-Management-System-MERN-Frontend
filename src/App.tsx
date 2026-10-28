@@ -7,8 +7,9 @@ import BookingManagement from './components/BookingManagement'
 import RentalManagement from './components/RentalManagement'
 import PaymentManagement from './components/PaymentManagement'
 import InvoiceManagement from './components/InvoiceManagement'
+import VehicleMaintenanceManagement from "./components/VehicleMaintenanceManagement.tsx";
 
-type Page = 'users' | 'vehicles' | 'vehicleCategories' | 'branch' | 'booking' | 'rental' | 'payments' | 'invoices'
+type Page = 'users' | 'vehicles' | 'vehicleCategories' | 'branch' | 'booking' | 'rental' | 'payments' | 'invoices' | 'vehicle-maintenance'
 
 const menu: { page: Page; label: string }[] = [
   { page: 'users', label: 'Users' },
@@ -18,7 +19,8 @@ const menu: { page: Page; label: string }[] = [
   { page: 'booking', label: 'Bookings' },
   { page: 'rental', label: 'Rentals' },
   { page: 'payments', label: 'Payments' },
-  {page:'invoices',label:'Invoice'}
+  {page:'invoices',label:'Invoice'},
+  {page:'vehicle-maintenance', label:'Vehicle Maintenance'}
 ]
 
 function App() {
@@ -51,6 +53,7 @@ function App() {
         {page === 'rental' && <RentalManagement />}
         {page === 'payments' && <PaymentManagement />}
         {page === 'invoices' && <InvoiceManagement />}
+        {page === 'vehicle-maintenance' && <VehicleMaintenanceManagement />}
       </div>
     </div>
   )
