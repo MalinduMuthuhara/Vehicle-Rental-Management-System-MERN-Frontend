@@ -70,6 +70,11 @@ export const badgeTone: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-800',
   INACTIVE: 'bg-gray-100 text-gray-600',
   SUSPENDED: 'bg-red-100 text-red-700',
+  // document
+  VALID: 'bg-green-100 text-green-800',
+  EXPIRING: 'bg-amber-100 text-amber-800',
+  EXPIRED: 'bg-red-100 text-red-700',
+  INVALID: 'bg-gray-100 text-gray-600',
   // maintenance
   SCHEDULED: 'bg-blue-100 text-blue-800',
   IN_PROGRESS: 'bg-amber-100 text-amber-800',
