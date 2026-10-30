@@ -181,6 +181,23 @@ export type VehicleMaintenanceData = Omit<VehicleMaintenance,'_id' | 'vehicleId'
     vehicleId : string
 }
 
+// Vehicle Document Interface
+export type DocumentStatus = 'VALID' | 'EXPIRING' | 'EXPIRED' | 'INVALID'
+export type DocumentType = 'REGISTRATION' | 'INSURANCE' | 'LICENSE'
+
+export interface VehicleDocument {
+    _id: string
+    vehicleId: string | { _id: string; registrationNumber?: string }
+    documentType: DocumentType
+    documentNumber: string
+    issueDate: string
+    expiryDate?: string | null
+    fileUrl: string
+    status: DocumentStatus
+}
+export type VehicleDocumentData = Omit<VehicleDocument, '_id' | 'vehicleId'> & {
+    vehicleId: string
+}
 
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -225,4 +242,5 @@ export const rentalApi = makeApi<Rental, RentalData>('/rentals')
 export const paymentApi = makeApi<Payment,PaymentData>('/payments')
 export const invoiceApi = makeApi<Invoice,InvoiceData>('/invoices')
 export const maintenanceApi = makeApi<VehicleMaintenance, VehicleMaintenanceData>('/vehicle-maintenances')
+export const documentApi = makeApi<VehicleDocument, VehicleDocumentData>('/document-status')
 
