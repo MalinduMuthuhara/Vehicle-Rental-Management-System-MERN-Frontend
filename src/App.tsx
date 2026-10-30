@@ -9,8 +9,9 @@ import PaymentManagement from './components/PaymentManagement'
 import InvoiceManagement from './components/InvoiceManagement'
 import VehicleMaintenanceManagement from "./components/VehicleMaintenanceManagement.tsx";
 import VehicleDocument from "./components/VehicleDocument.tsx";
+import Review from "./components/Review.tsx"
 
-type Page = 'users' | 'vehicles' | 'vehicleCategories' | 'branch' | 'booking' | 'rental' | 'payments' | 'invoices' | 'vehicle-maintenance' | 'vehicle-document'
+type Page = 'users' | 'vehicles' | 'vehicleCategories' | 'branch' | 'booking' | 'rental' | 'payments' | 'invoices' | 'vehicle-maintenance' | 'vehicle-document' | 'review'
 
 const menu: { page: Page; label: string }[] = [
   { page: 'users', label: 'Users' },
@@ -22,7 +23,8 @@ const menu: { page: Page; label: string }[] = [
   { page: 'payments', label: 'Payments' },
   {page:'invoices',label:'Invoice'},
   {page:'vehicle-maintenance', label:'Vehicle Maintenance'},
-  {page : 'vehicle-document', label:'Vehicle Document'}
+  {page : 'vehicle-document', label:'Vehicle Document'},
+  {page :'review',label:'Reviews' },
 ]
 
 function App() {
@@ -57,6 +59,7 @@ function App() {
         {page === 'invoices' && <InvoiceManagement />}
         {page === 'vehicle-maintenance' && <VehicleMaintenanceManagement />}
         {page === 'vehicle-document' && <VehicleDocument />}
+        {page === 'review' && <Review/>}
       </div>
     </div>
   )
