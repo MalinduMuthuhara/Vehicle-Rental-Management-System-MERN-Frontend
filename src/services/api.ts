@@ -242,5 +242,5 @@ export const rentalApi = makeApi<Rental, RentalData>('/rentals')
 export const paymentApi = makeApi<Payment,PaymentData>('/payments')
 export const invoiceApi = makeApi<Invoice,InvoiceData>('/invoices')
 export const maintenanceApi = makeApi<VehicleMaintenance, VehicleMaintenanceData>('/vehicle-maintenances')
-export const documentApi = makeApi<VehicleDocument, VehicleDocumentData>('/document-status')
+export const documentApi = makeApi<VehicleDocument, VehicleDocumentData>('/vehicle-documents')
 

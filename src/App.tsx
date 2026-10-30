@@ -8,7 +8,7 @@ import RentalManagement from './components/RentalManagement'
 import PaymentManagement from './components/PaymentManagement'
 import InvoiceManagement from './components/InvoiceManagement'
 import VehicleMaintenanceManagement from "./components/VehicleMaintenanceManagement.tsx";
-import VehicleDocument from "./components/VehicleDocument.ts";
+import VehicleDocument from "./components/VehicleDocument.tsx";
 
 type Page = 'users' | 'vehicles' | 'vehicleCategories' | 'branch' | 'booking' | 'rental' | 'payments' | 'invoices' | 'vehicle-maintenance' | 'vehicle-document'
 
@@ -55,7 +55,8 @@ function App() {
         {page === 'rental' && <RentalManagement />}
         {page === 'payments' && <PaymentManagement />}
         {page === 'invoices' && <InvoiceManagement />}
-        {page === 'vehicle-maintenance' && <VehicleMaintenanceManagement />}{page === 'vehicle-document' && <VehicleDocument />}
+        {page === 'vehicle-maintenance' && <VehicleMaintenanceManagement />}
+        {page === 'vehicle-document' && <VehicleDocument />}
       </div>
     </div>
   )
