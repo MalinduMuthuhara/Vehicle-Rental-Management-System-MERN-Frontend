@@ -199,6 +199,25 @@ export type VehicleDocumentData = Omit<VehicleDocument, '_id' | 'vehicleId'> & {
     vehicleId: string
 }
 
+//Review Interface
+export type ReviewStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
+export interface Review {
+    _id: string
+    userId : string | { _id: string;userName?: string}
+    vehicleId : string | { _id: string;registrationNumber?: string}
+    bookingId : string | { _id: string }
+    rating : number
+    comment : string
+    reviewDate : string
+    status : ReviewStatus
+}
+export type ReviewData = Omit<Review,'_id'|'userId'|'vehicleId'|'bookingId'>&{
+    userId : string
+    vehicleId : string
+    bookingId : string
+}
+
+
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
@@ -243,4 +262,5 @@ export const paymentApi = makeApi<Payment,PaymentData>('/payments')
 export const invoiceApi = makeApi<Invoice,InvoiceData>('/invoices')
 export const maintenanceApi = makeApi<VehicleMaintenance, VehicleMaintenanceData>('/vehicle-maintenances')
 export const documentApi = makeApi<VehicleDocument, VehicleDocumentData>('/vehicle-documents')
+export const reviewApi = makeApi<Review,ReviewData>('/reviews')
 
