@@ -218,7 +218,6 @@ export type ReviewData = Omit<Review,'_id'|'userId'|'vehicleId'|'bookingId'>&{
 }
 
 // Damage Report Interface
-
 export type DamageReportStatus = 'REPORTED' | 'ASSESSED' | 'REPAIRED' | 'CLOSED'
 export interface DamageReport {
     _id: string

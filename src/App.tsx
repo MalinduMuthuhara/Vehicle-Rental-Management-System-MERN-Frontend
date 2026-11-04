@@ -10,12 +10,13 @@ import InvoiceManagement from './components/InvoiceManagement'
 import VehicleMaintenanceManagement from "./components/VehicleMaintenanceManagement.tsx";
 import VehicleDocument from "./components/VehicleDocument.tsx";
 import Review from "./components/Review.tsx"
+import DamageReportManagement from "./components/DamageReportManagement"
 
-type Page = 'users' | 'vehicles' | 'vehicleCategories' | 'branch' | 'booking' | 'rental' | 'payments' | 'invoices' | 'vehicle-maintenance' | 'vehicle-document' | 'review'
+type Page = 'users' | 'vehicles' | 'vehicleCategories' | 'branch' | 'booking' | 'rental' | 'payments' | 'invoices' | 'vehicle-maintenance' | 'vehicle-document' | 'review'|'damage-report'
 
 const menu: { page: Page; label: string }[] = [
-  { page: 'users', label: 'Users' },
-  { page: 'vehicles', label: 'Vehicles' },
+  { page: 'users', label: 'Users'},
+  { page: 'vehicles', label: 'Vehicles'},
   { page: 'vehicleCategories', label: 'Vehicle Categories' },
   { page: 'branch', label: 'Branches' },
   { page: 'booking', label: 'Bookings' },
@@ -25,6 +26,7 @@ const menu: { page: Page; label: string }[] = [
   {page:'vehicle-maintenance', label:'Vehicle Maintenance'},
   {page : 'vehicle-document', label:'Vehicle Document'},
   {page :'review',label:'Reviews' },
+   { page: 'damage-report', label: 'Damage Reports'},
 ]
 
 function App() {
@@ -60,6 +62,7 @@ function App() {
         {page === 'vehicle-maintenance' && <VehicleMaintenanceManagement />}
         {page === 'vehicle-document' && <VehicleDocument />}
         {page === 'review' && <Review/>}
+        {page === 'damage-report' && <DamageReportManagement />}
       </div>
     </div>
   )

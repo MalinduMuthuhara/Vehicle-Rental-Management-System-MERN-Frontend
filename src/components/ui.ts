@@ -88,5 +88,10 @@ export const badgeTone: Record<string, string> = {
   // payment
   FAILED: 'bg-red-100 text-red-700',
   REFUNDED: 'bg-violet-100 text-violet-800',
+  // Damage Report
+  REPORTED: 'bg-amber-100 text-amber-800',
+  ASSESSED: 'bg-blue-100 text-blue-800',
+  REPAIRED: 'bg-green-100 text-green-800',
+  CLOSED: 'bg-gray-100 text-gray-600',
 
 }
