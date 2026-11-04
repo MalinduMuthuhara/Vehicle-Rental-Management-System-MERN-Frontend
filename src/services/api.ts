@@ -217,6 +217,29 @@ export type ReviewData = Omit<Review,'_id'|'userId'|'vehicleId'|'bookingId'>&{
     bookingId : string
 }
 
+// Damage Report Interface
+
+export type DamageReportStatus = 'REPORTED' | 'ASSESSED' | 'REPAIRED' | 'CLOSED'
+export interface DamageReport {
+    _id: string
+    rentalId: string | { _id: string }
+    vehicleId: string | { _id: string; registrationNumber?: string }
+    reportedBy: string | { _id: string; userName?: string }
+    damageType: string
+    description: string
+    damageDate: string
+    estimatedCost: number
+    repairCost?: number
+    photoUrls: string[]
+    status: DamageReportStatus
+}
+export type DamageReportData = Omit<DamageReport,'_id' | 'rentalId' | 'vehicleId' | 'reportedBy'>&{
+    rentalId: string
+    vehicleId: string
+    reportedBy: string
+}
+
+
 
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -263,4 +286,5 @@ export const invoiceApi = makeApi<Invoice,InvoiceData>('/invoices')
 export const maintenanceApi = makeApi<VehicleMaintenance, VehicleMaintenanceData>('/vehicle-maintenances')
 export const documentApi = makeApi<VehicleDocument, VehicleDocumentData>('/vehicle-documents')
 export const reviewApi = makeApi<Review,ReviewData>('/reviews')
+export const damageReportApi = makeApi<DamageReport, DamageReportData>('/damage-reports')
 
