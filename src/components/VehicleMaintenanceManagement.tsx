@@ -6,11 +6,17 @@ import type {
     MaintenanceType,
     MaintenanceStatus,
     Vehicle,
+    User,
 } from '../services/api'
 import { ui, badgeTone } from './ui'
 
 const TYPES: MaintenanceType[] = ['ROUTINE', 'REPAIR', 'INSPECTION']
 const STATUSES: MaintenanceStatus[] = ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']
+
+const currentUser = JSON.parse(localStorage.getItem('user') || 'null') as User | null
+const role = currentUser?.role
+
+const canManageMaintenance = role === 'ADMIN' || role === 'EMPLOYEE'
 
 const initialForm = {
     vehicleId: '',
@@ -25,15 +31,14 @@ const initialForm = {
 
 type MaintenanceForm = typeof initialForm
 
-const idOf = (ref: string | { _id: string }) => (typeof ref === 'string' ? ref : ref?._id ?? '')
+const idOf = (ref: string | { _id: string }) =>
+    typeof ref === 'string' ? ref : ref?._id ?? ''
 
-// "IN_PROGRESS" -> "In progress"
 const label = (value: string) => {
     const text = value.replace(/_/g, ' ').toLowerCase()
     return text.charAt(0).toUpperCase() + text.slice(1)
 }
 
-// <input type="date"> needs "YYYY-MM-DD" in local time
 const toInputDate = (iso?: string | null) => {
     if (!iso) return ''
     const d = new Date(iso)
@@ -45,7 +50,9 @@ const toInputDate = (iso?: string | null) => {
 const formatDate = (iso?: string | null) => {
     if (!iso) return '-'
     const d = new Date(iso)
-    return Number.isNaN(d.getTime()) ? '-' : d.toLocaleDateString(undefined, { dateStyle: 'medium' })
+    return Number.isNaN(d.getTime())
+        ? '-'
+        : d.toLocaleDateString(undefined, { dateStyle: 'medium' })
 }
 
 function VehicleMaintenanceManagement() {
@@ -61,13 +68,17 @@ function VehicleMaintenanceManagement() {
     const [statusFilter, setStatusFilter] = useState<'ALL' | MaintenanceStatus>('ALL')
 
     const loadAll = async () => {
+        if (!canManageMaintenance) return
+
         try {
             setLoading(true)
             setError('')
+
             const [recordData, vehicleData] = await Promise.all([
                 maintenanceApi.getAll(),
                 vehicleApi.getAll(),
             ])
+
             setRecords(recordData)
             setVehicles(vehicleData)
         } catch (err) {
@@ -80,7 +91,8 @@ function VehicleMaintenanceManagement() {
 
     const loadRecords = async () => {
         try {
-            setRecords(await maintenanceApi.getAll())
+            const data = await maintenanceApi.getAll()
+            setRecords(data)
         } catch (err) {
             console.error('Failed to load maintenance records:', err)
             setError('Unable to load maintenance records. Please try again.')
@@ -92,22 +104,34 @@ function VehicleMaintenanceManagement() {
     }, [])
 
     const vehicleName = useMemo(() => {
-        const map = new Map(vehicles.map((v) => [v._id, `${v.registrationNumber} - ${v.brand} ${v.model}`]))
-        return (ref: VehicleMaintenance['vehicleId']) => map.get(idOf(ref)) || '-'
+        const map = new Map(
+            vehicles.map((v) => [
+                v._id,
+                `${v.registrationNumber} - ${v.brand} ${v.model}`,
+            ]),
+        )
+
+        return (ref: VehicleMaintenance['vehicleId']) =>
+            map.get(idOf(ref)) || '-'
     }, [vehicles])
 
     const filteredRecords = useMemo(() => {
         const term = search.trim().toLowerCase()
+
         return records.filter((r) => {
             if (statusFilter !== 'ALL' && r.status !== statusFilter) return false
             if (!term) return true
+
             return `${vehicleName(r.vehicleId)} ${r.serviceProvider} ${r.description}`
                 .toLowerCase()
                 .includes(term)
         })
     }, [records, search, statusFilter, vehicleName])
 
-    const updateField = <K extends keyof MaintenanceForm>(field: K, value: MaintenanceForm[K]) => {
+    const updateField = <K extends keyof MaintenanceForm>(
+        field: K,
+        value: MaintenanceForm[K],
+    ) => {
         setForm((current) => ({ ...current, [field]: value }))
     }
 
@@ -120,6 +144,11 @@ function VehicleMaintenanceManagement() {
     const saveRecord = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         setSuccess('')
+
+        if (!canManageMaintenance) {
+            setError('You do not have permission to manage maintenance records.')
+            return
+        }
 
         const cost = Number(form.cost)
 
@@ -151,7 +180,9 @@ function VehicleMaintenanceManagement() {
             serviceDate: new Date(form.serviceDate).toISOString(),
             cost,
             serviceProvider: form.serviceProvider.trim(),
-            nextServiceDate: form.nextServiceDate ? new Date(form.nextServiceDate).toISOString() : null,
+            nextServiceDate: form.nextServiceDate
+                ? new Date(form.nextServiceDate).toISOString()
+                : null,
             status: form.status,
         }
 
@@ -182,6 +213,8 @@ function VehicleMaintenanceManagement() {
     }
 
     const editRecord = (record: VehicleMaintenance) => {
+        if (!canManageMaintenance) return
+
         setSelectedId(record._id)
         setForm({
             vehicleId: idOf(record.vehicleId),
@@ -193,25 +226,44 @@ function VehicleMaintenanceManagement() {
             nextServiceDate: toInputDate(record.nextServiceDate),
             status: record.status,
         })
+
         setError('')
         setSuccess('')
         window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 
     const deleteRecord = async (record: VehicleMaintenance) => {
-        if (!window.confirm('Are you sure you want to delete this maintenance record?')) return
+        if (!canManageMaintenance) return
+
+        if (!window.confirm('Are you sure you want to delete this maintenance record?')) {
+            return
+        }
 
         try {
             setError('')
             setSuccess('')
+
             await maintenanceApi.remove(record._id)
+
             if (selectedId === record._id) clearForm()
+
             setSuccess('Maintenance record deleted successfully.')
             await loadRecords()
         } catch (err) {
             console.error('Failed to delete maintenance record:', err)
             setError('Unable to delete maintenance record. Please try again.')
         }
+    }
+
+    if (!canManageMaintenance) {
+        return (
+            <main className={ui.page}>
+                <h1 className={ui.h1}>Vehicle Maintenance Management</h1>
+                <p role="alert" className={ui.error}>
+                    Access Denied. You do not have permission to manage vehicle maintenance.
+                </p>
+            </main>
+        )
     }
 
     const missingRefs = !loading && vehicles.length === 0
@@ -222,9 +274,11 @@ function VehicleMaintenanceManagement() {
 
             {error && <p role="alert" className={ui.error}>{error}</p>}
             {success && <p role="status" className={ui.success}>{success}</p>}
+
             {missingRefs && (
                 <p className={ui.hint}>
-                    You need at least one vehicle before adding a maintenance record. Create a vehicle first.
+                    You need at least one vehicle before adding a maintenance record.
+                    Create a vehicle first.
                 </p>
             )}
 
@@ -248,12 +302,16 @@ function VehicleMaintenanceManagement() {
                 </div>
 
                 <div className={ui.field}>
-                    <label className={ui.label} htmlFor="maintenanceType">Maintenance Type *</label>
+                    <label className={ui.label} htmlFor="maintenanceType">
+                        Maintenance Type *
+                    </label>
                     <select
                         className={ui.input}
                         id="maintenanceType"
                         value={form.maintenanceType}
-                        onChange={(e) => updateField('maintenanceType', e.target.value as MaintenanceType)}
+                        onChange={(e) =>
+                            updateField('maintenanceType', e.target.value as MaintenanceType)
+                        }
                         required
                     >
                         {TYPES.map((t) => (
@@ -268,7 +326,9 @@ function VehicleMaintenanceManagement() {
                         className={ui.input}
                         id="status"
                         value={form.status}
-                        onChange={(e) => updateField('status', e.target.value as MaintenanceStatus)}
+                        onChange={(e) =>
+                            updateField('status', e.target.value as MaintenanceStatus)
+                        }
                         required
                     >
                         {STATUSES.map((s) => (
@@ -329,7 +389,9 @@ function VehicleMaintenanceManagement() {
                 </div>
 
                 <div className={ui.field}>
-                    <label className={ui.label} htmlFor="serviceProvider">Service Provider *</label>
+                    <label className={ui.label} htmlFor="serviceProvider">
+                        Service Provider *
+                    </label>
                     <input
                         className={ui.input}
                         id="serviceProvider"
@@ -342,10 +404,25 @@ function VehicleMaintenanceManagement() {
                 </div>
 
                 <div className={ui.actions}>
-                    <button type="submit" className={ui.btnPrimary} disabled={saving}>
-                        {saving ? 'Saving...' : selectedId ? 'Update Record' : 'Save Record'}
+                    <button
+                        type="submit"
+                        className={ui.btnPrimary}
+                        disabled={saving}
+                    >
+                        {saving
+                            ? 'Saving...'
+                            : selectedId
+                                ? 'Update Record'
+                                : 'Save Record'}
                     </button>
-                    <button type="button" className={ui.btnSecondary} onClick={clearForm}>Clear</button>
+
+                    <button
+                        type="button"
+                        className={ui.btnSecondary}
+                        onClick={clearForm}
+                    >
+                        Clear
+                    </button>
                 </div>
             </form>
 
@@ -362,10 +439,13 @@ function VehicleMaintenanceManagement() {
                     onChange={(e) => setSearch(e.target.value)}
                     aria-label="Search maintenance records"
                 />
+
                 <select
                     className={ui.filter}
                     value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value as 'ALL' | MaintenanceStatus)}
+                    onChange={(e) =>
+                        setStatusFilter(e.target.value as 'ALL' | MaintenanceStatus)
+                    }
                     aria-label="Filter by status"
                 >
                     <option value="ALL">All statuses</option>
@@ -382,6 +462,7 @@ function VehicleMaintenanceManagement() {
                     <p className={ui.count}>
                         Showing {filteredRecords.length} of {records.length} records
                     </p>
+
                     <div className={ui.tableWrap}>
                         <table className={ui.table}>
                             <thead className={ui.thead}>
@@ -397,10 +478,13 @@ function VehicleMaintenanceManagement() {
                                 <th className={ui.th}>Actions</th>
                             </tr>
                             </thead>
+
                             <tbody>
                             {filteredRecords.length === 0 ? (
                                 <tr className={ui.tr}>
-                                    <td className={ui.td} colSpan={9}>No maintenance records found.</td>
+                                    <td className={ui.td} colSpan={9}>
+                                        No maintenance records found.
+                                    </td>
                                 </tr>
                             ) : (
                                 filteredRecords.map((r) => (
@@ -410,14 +494,30 @@ function VehicleMaintenanceManagement() {
                                         <td className={ui.td}>{r.description}</td>
                                         <td className={ui.td}>{formatDate(r.serviceDate)}</td>
                                         <td className={ui.td}>{formatDate(r.nextServiceDate)}</td>
-                                        <td className={ui.td}>{Number(r.cost).toLocaleString()}</td>
+                                        <td className={ui.td}>
+                                            {Number(r.cost).toLocaleString()}
+                                        </td>
                                         <td className={ui.td}>{r.serviceProvider}</td>
                                         <td className={ui.td}>
-                                            <span className={`${ui.badge} ${badgeTone[r.status]}`}>{label(r.status)}</span>
+                                                <span className={`${ui.badge} ${badgeTone[r.status]}`}>
+                                                    {label(r.status)}
+                                                </span>
                                         </td>
                                         <td className={ui.td}>
-                                            <button type="button" className={ui.btnEdit} onClick={() => editRecord(r)}>Edit</button>
-                                            <button type="button" className={ui.btnDelete} onClick={() => void deleteRecord(r)}>Delete</button>
+                                            <button
+                                                type="button"
+                                                className={ui.btnEdit}
+                                                onClick={() => editRecord(r)}
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={ui.btnDelete}
+                                                onClick={() => void deleteRecord(r)}
+                                            >
+                                                Delete
+                                            </button>
                                         </td>
                                     </tr>
                                 ))
