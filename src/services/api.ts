@@ -5,6 +5,17 @@ export interface Customer {
     name: string
     contact: string
 }
+//Login Interface
+export interface LoginData {
+    email: string
+    password: string
+}
+//AUTH RESPONSE INTERFACE
+export interface AuthResponse {
+    message: string
+    token: string
+    user: User
+}
 
 // User Interface
 
@@ -241,15 +252,49 @@ export type DamageReportData = Omit<DamageReport,'_id' | 'rentalId' | 'vehicleId
 
 
 
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  })
+async function request<T>(
+    path: string,
+    options?: RequestInit
+): Promise<T> {
 
-  const body = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(body.message || 'Request failed')
-  return body as T
+    const token = localStorage.getItem('token')
+
+    const headers = new Headers(options?.headers)
+
+    headers.set('Content-Type', 'application/json')
+
+    if (token) {
+        headers.set('Authorization', `Bearer ${token}`)
+    }
+
+    const res = await fetch(`${API_URL}${path}`, {
+        ...options,
+        headers,
+    })
+
+    const body = await res.json().catch(() => ({}))
+
+    if (!res.ok) {
+        throw new Error(body.message || 'Request failed')
+    }
+
+    return body as T
+}
+export const loginApi = async (data: LoginData) => {
+    const response = await request<AuthResponse>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    })
+
+    localStorage.setItem('token', response.token)
+    localStorage.setItem('user', JSON.stringify(response.user))
+
+    return response
+}
+
+export const logoutApi = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
 }
 
 async function getList<T>(path: string): Promise<T[]> {
