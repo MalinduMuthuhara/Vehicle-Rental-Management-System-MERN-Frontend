@@ -50,7 +50,9 @@ const label = (value: string) => {
 
 const formatDate = (date?: string) => {
     if (!date) return '-'
+
     const d = new Date(date)
+
     return Number.isNaN(d.getTime())
         ? '-'
         : d.toLocaleDateString(undefined, { dateStyle: 'medium' })
@@ -58,13 +60,27 @@ const formatDate = (date?: string) => {
 
 const toInputDate = (date?: string) => {
     if (!date) return ''
+
     const d = new Date(date)
+
     if (Number.isNaN(d.getTime())) return ''
+
     const pad = (n: number) => String(n).padStart(2, '0')
+
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
 
 function DamageReportManagement() {
+
+    const currentUser = JSON.parse(
+        localStorage.getItem('user') || 'null'
+    ) as { role?: string } | null
+
+    const role = currentUser?.role
+
+    const canManageDamageReports =
+        role === 'ADMIN' || role === 'EMPLOYEE'
+
     const [reports, setReports] = useState<DamageReport[]>([])
     const [rentals, setRentals] = useState<Rental[]>([])
     const [vehicles, setVehicles] = useState<Vehicle[]>([])
@@ -83,7 +99,7 @@ function DamageReportManagement() {
     const [statusFilter, setStatusFilter] =
         useState<'ALL' | DamageReportStatus>('ALL')
 
-    // Load all required data
+    // Load data only for ADMIN and EMPLOYEE
     const loadAll = async () => {
         try {
             setLoading(true)
@@ -124,10 +140,11 @@ function DamageReportManagement() {
     }
 
     useEffect(() => {
-        void loadAll()
-    }, [])
+        if (canManageDamageReports) {
+            void loadAll()
+        }
+    }, [canManageDamageReports])
 
-    // Dropdown labels
     const vehicleName = useMemo(() => {
         const map = new Map(
             vehicles.map(v => [
@@ -138,7 +155,7 @@ function DamageReportManagement() {
 
         return (ref: DamageReport['vehicleId']) =>
             (typeof ref === 'object' && ref?.registrationNumber)
-                ? `${ref.registrationNumber}`
+                ? ref.registrationNumber
                 : map.get(idOf(ref)) || '-'
     }, [vehicles])
 
@@ -160,13 +177,13 @@ function DamageReportManagement() {
 
         return (ref: DamageReport['rentalId']) => {
             const rental = map.get(idOf(ref))
+
             return rental
                 ? `Rental ${rental._id.slice(-6)}`
                 : `Rental ${idOf(ref).slice(-6)}`
         }
     }, [rentals])
 
-    // Search and status filter
     const filteredReports = useMemo(() => {
         const term = search.trim().toLowerCase()
 
@@ -216,19 +233,21 @@ function DamageReportManagement() {
 
     const clearForm = () => {
         setSelectedId(null)
+
         setForm({
             ...initialForm,
             damageDate: new Date().toISOString().slice(0, 10),
         })
+
         setError('')
     }
 
-    // Create / Update
     const saveReport = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         setSuccess('')
 
         const estimatedCost = Number(form.estimatedCost)
+
         const repairCost =
             form.repairCost.trim() === ''
                 ? undefined
@@ -296,6 +315,7 @@ function DamageReportManagement() {
 
         } catch (err) {
             console.error('Failed to save damage report:', err)
+
             setError(
                 err instanceof Error
                     ? err.message
@@ -306,7 +326,6 @@ function DamageReportManagement() {
         }
     }
 
-    // Edit
     const editReport = (report: DamageReport) => {
         setSelectedId(report._id)
 
@@ -328,10 +347,13 @@ function DamageReportManagement() {
 
         setError('')
         setSuccess('')
-        window.scrollTo({ top: 0, behavior: 'smooth' })
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        })
     }
 
-    // Delete
     const deleteReport = async (report: DamageReport) => {
         if (
             !window.confirm(
@@ -350,6 +372,7 @@ function DamageReportManagement() {
             }
 
             setSuccess('Damage report deleted successfully.')
+
             await loadReports()
 
         } catch (err) {
@@ -358,22 +381,46 @@ function DamageReportManagement() {
         }
     }
 
+    // CUSTOMER and other roles cannot access this module
+    if (!canManageDamageReports) {
+        return (
+            <main className={ui.page}>
+                <h1 className={ui.h1}>
+                    Damage Report Management
+                </h1>
+
+                <p role="alert" className={ui.error}>
+                    Access Denied. Only ADMIN and EMPLOYEE can manage damage reports.
+                </p>
+            </main>
+        )
+    }
+
     const missingRefs =
         !loading &&
-        (rentals.length === 0 ||
+        (
+            rentals.length === 0 ||
             vehicles.length === 0 ||
-            users.length === 0)
+            users.length === 0
+        )
 
     return (
         <main className={ui.page}>
-            <h1 className={ui.h1}>Damage Report Management</h1>
+
+            <h1 className={ui.h1}>
+                Damage Report Management
+            </h1>
 
             {error && (
-                <p role="alert" className={ui.error}>{error}</p>
+                <p role="alert" className={ui.error}>
+                    {error}
+                </p>
             )}
 
             {success && (
-                <p role="status" className={ui.success}>{success}</p>
+                <p role="status" className={ui.success}>
+                    {success}
+                </p>
             )}
 
             {missingRefs && (
@@ -383,7 +430,6 @@ function DamageReportManagement() {
                 </p>
             )}
 
-            {/* Damage Report Form */}
             <form className={ui.form} onSubmit={saveReport}>
 
                 <div className={ui.field}>
@@ -492,11 +538,16 @@ function DamageReportManagement() {
                         id="status"
                         value={form.status}
                         onChange={e =>
-                            updateField('status', e.target.value as DamageReportStatus)
+                            updateField(
+                                'status',
+                                e.target.value as DamageReportStatus
+                            )
                         }
                     >
                         {STATUSES.map(s => (
-                            <option key={s} value={s}>{label(s)}</option>
+                            <option key={s} value={s}>
+                                {label(s)}
+                            </option>
                         ))}
                     </select>
                 </div>
@@ -559,7 +610,7 @@ function DamageReportManagement() {
                     <textarea
                         className={ui.textarea}
                         id="photoUrls"
-                        placeholder={'Enter one photo URL per line'}
+                        placeholder="Enter one photo URL per line"
                         value={form.photoUrls}
                         onChange={e => updateField('photoUrls', e.target.value)}
                     />
@@ -591,10 +642,12 @@ function DamageReportManagement() {
                         Clear
                     </button>
                 </div>
+
             </form>
 
-            {/* Damage Report List */}
-            <h2 className={ui.h2}>Damage Report Records</h2>
+            <h2 className={ui.h2}>
+                Damage Report Records
+            </h2>
 
             <div className={ui.toolbar}>
                 <input
@@ -609,12 +662,17 @@ function DamageReportManagement() {
                     className={ui.filter}
                     value={statusFilter}
                     onChange={e =>
-                        setStatusFilter(e.target.value as 'ALL' | DamageReportStatus)
+                        setStatusFilter(
+                            e.target.value as 'ALL' | DamageReportStatus
+                        )
                     }
                 >
                     <option value="ALL">All Statuses</option>
+
                     {STATUSES.map(s => (
-                        <option key={s} value={s}>{label(s)}</option>
+                        <option key={s} value={s}>
+                            {label(s)}
+                        </option>
                     ))}
                 </select>
             </div>
@@ -630,6 +688,7 @@ function DamageReportManagement() {
             ) : (
                 <div className={ui.tableWrap}>
                     <table className={ui.table}>
+
                         <thead className={ui.thead}>
                         <tr>
                             <th className={ui.th}>Vehicle</th>
@@ -647,6 +706,7 @@ function DamageReportManagement() {
                         <tbody>
                         {filteredReports.map(report => (
                             <tr className={ui.tr} key={report._id}>
+
                                 <td className={ui.td}>
                                     {vehicleName(report.vehicleId)}
                                 </td>
@@ -678,7 +738,9 @@ function DamageReportManagement() {
                                 </td>
 
                                 <td className={ui.td}>
-                                        <span className={`${ui.badge} ${badgeTone[report.status] || 'bg-gray-100 text-gray-700'}`}>
+                                        <span
+                                            className={`${ui.badge} ${badgeTone[report.status] || 'bg-gray-100 text-gray-700'}`}
+                                        >
                                             {label(report.status)}
                                         </span>
                                 </td>
@@ -695,11 +757,12 @@ function DamageReportManagement() {
                                     <button
                                         className={ui.btnDelete}
                                         type="button"
-                                        onClick={() => deleteReport(report)}
+                                        onClick={() => void deleteReport(report)}
                                     >
                                         Delete
                                     </button>
                                 </td>
+
                             </tr>
                         ))}
 
@@ -714,9 +777,11 @@ function DamageReportManagement() {
                             </tr>
                         )}
                         </tbody>
+
                     </table>
                 </div>
             )}
+
         </main>
     )
 }

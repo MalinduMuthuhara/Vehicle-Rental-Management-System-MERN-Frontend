@@ -28,6 +28,17 @@ const role = currentUser?.role
 const canManagePayments =
     role === 'ADMIN' || role === 'EMPLOYEE'
 
+const canViewPayments =
+    canManagePayments || role === 'CUSTOMER'
+
+const isMyPayment = (payment: Payment) =>
+    !!currentUser?._id &&
+    idOf(payment.userId) === currentUser._id
+
+function idOf(ref: string | { _id: string } | null | undefined) {
+    return typeof ref === 'string' ? ref : ref?._id ?? ''
+}
+
 const toInputDate = (iso?: string) => {
     if (!iso) return ''
 
@@ -51,9 +62,6 @@ const emptyForm = () => ({
 })
 
 type PaymentForm = ReturnType<typeof emptyForm>
-
-const idOf = (ref: string | { _id: string } | null | undefined) =>
-    typeof ref === 'string' ? ref : ref?._id ?? ''
 
 const label = (value: string) =>
     value.charAt(0) + value.slice(1).toLowerCase()
@@ -90,11 +98,21 @@ function PaymentManagement() {
         useState<'ALL' | PaymentStatus>('ALL')
 
     const loadAll = async () => {
-        if (!canManagePayments) return
+        if (!canViewPayments) return
 
         try {
             setLoading(true)
             setError('')
+
+            if (role === 'CUSTOMER') {
+                const paymentData = await paymentApi.getAll()
+
+                setPayments(
+                    paymentData.filter(isMyPayment)
+                )
+
+                return
+            }
 
             const [paymentData, bookingData, userData] =
                 await Promise.all([
@@ -122,7 +140,13 @@ function PaymentManagement() {
 
     const loadPayments = async () => {
         try {
-            setPayments(await paymentApi.getAll())
+            const paymentData = await paymentApi.getAll()
+
+            setPayments(
+                canManagePayments
+                    ? paymentData
+                    : paymentData.filter(isMyPayment)
+            )
         } catch (err) {
             console.error('Failed to load payments:', err)
             setError('Unable to load payments. Please try again.')
@@ -242,6 +266,9 @@ function PaymentManagement() {
         event: FormEvent<HTMLFormElement>
     ) => {
         event.preventDefault()
+
+        if (!canManagePayments) return
+
         setSuccess('')
 
         const amount = Number(form.amount)
@@ -312,6 +339,8 @@ function PaymentManagement() {
     }
 
     const editPayment = (payment: Payment) => {
+        if (!canManagePayments) return
+
         setSelectedId(payment._id)
 
         setForm({
@@ -334,6 +363,8 @@ function PaymentManagement() {
     }
 
     const deletePayment = async (payment: Payment) => {
+        if (!canManagePayments) return
+
         if (
             !window.confirm(
                 `Delete payment ${payment.transactionId}?`
@@ -362,7 +393,7 @@ function PaymentManagement() {
         }
     }
 
-    if (!canManagePayments) {
+    if (!canViewPayments) {
         return (
             <main className={ui.page}>
                 <h1 className={ui.h1}>Access Denied</h1>
@@ -375,11 +406,13 @@ function PaymentManagement() {
     }
 
     const missingRefs =
-        !loading && bookings.length === 0
+        canManagePayments && !loading && bookings.length === 0
 
     return (
         <main className={ui.page}>
-            <h1 className={ui.h1}>Payment Management</h1>
+            <h1 className={ui.h1}>
+                {canManagePayments ? 'Payment Management' : 'My Payments'}
+            </h1>
 
             {error && (
                 <p role="alert" className={ui.error}>
@@ -400,211 +433,191 @@ function PaymentManagement() {
                 </p>
             )}
 
-            <form
-                className={ui.form}
-                onSubmit={savePayment}
-            >
-                <div className={ui.fieldFull}>
-                    <label
-                        className={ui.label}
-                        htmlFor="bookingId"
+            {canManagePayments && (
+                <>
+                    <form
+                        className={ui.form}
+                        onSubmit={savePayment}
                     >
-                        Booking *
-                    </label>
+                        <div className={ui.fieldFull}>
+                            <label className={ui.label} htmlFor="bookingId">
+                                Booking *
+                            </label>
 
-                    <select
-                        className={ui.input}
-                        id="bookingId"
-                        value={form.bookingId}
-                        onChange={(e) =>
-                            selectBooking(e.target.value)
-                        }
-                        required
-                    >
-                        <option value="">
-                            Select booking
-                        </option>
-
-                        {bookings.map((b) => (
-                            <option
-                                key={b._id}
-                                value={b._id}
+                            <select
+                                className={ui.input}
+                                id="bookingId"
+                                value={form.bookingId}
+                                onChange={(e) =>
+                                    selectBooking(e.target.value)
+                                }
+                                required
                             >
-                                {bookingLabel(b)}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                                <option value="">Select booking</option>
 
-                <div className={ui.field}>
-                    <label
-                        className={ui.label}
-                        htmlFor="userId"
-                    >
-                        Customer *
-                    </label>
+                                {bookings.map((b) => (
+                                    <option key={b._id} value={b._id}>
+                                        {bookingLabel(b)}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-                    <input
-                        className={ui.input}
-                        id="userId"
-                        value={userName(form.userId)}
-                        readOnly
-                        placeholder="Select a booking first"
-                    />
-                </div>
+                        <div className={ui.field}>
+                            <label className={ui.label} htmlFor="userId">
+                                Customer *
+                            </label>
 
-                <div className={ui.field}>
-                    <label
-                        className={ui.label}
-                        htmlFor="amount"
-                    >
-                        Amount (LKR) *
-                    </label>
+                            <input
+                                className={ui.input}
+                                id="userId"
+                                value={userName(form.userId)}
+                                readOnly
+                                placeholder="Select a booking first"
+                            />
+                        </div>
 
-                    <input
-                        className={ui.input}
-                        id="amount"
-                        type="number"
-                        min={1}
-                        step="0.01"
-                        placeholder="54000"
-                        value={form.amount}
-                        onChange={(e) =>
-                            updateField('amount', e.target.value)
-                        }
-                        required
-                    />
-                </div>
+                        <div className={ui.field}>
+                            <label className={ui.label} htmlFor="amount">
+                                Amount (LKR) *
+                            </label>
 
-                <div className={ui.field}>
-                    <label
-                        className={ui.label}
-                        htmlFor="paymentMethod"
-                    >
-                        Payment Method *
-                    </label>
+                            <input
+                                className={ui.input}
+                                id="amount"
+                                type="number"
+                                min={1}
+                                step="0.01"
+                                placeholder="54000"
+                                value={form.amount}
+                                onChange={(e) =>
+                                    updateField('amount', e.target.value)
+                                }
+                                required
+                            />
+                        </div>
 
-                    <select
-                        className={ui.input}
-                        id="paymentMethod"
-                        value={form.paymentMethod}
-                        onChange={(e) =>
-                            updateField(
-                                'paymentMethod',
-                                e.target.value as PaymentMethod
-                            )
-                        }
-                        required
-                    >
-                        {METHODS.map((m) => (
-                            <option key={m} value={m}>
-                                {label(m)}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                        <div className={ui.field}>
+                            <label className={ui.label} htmlFor="paymentMethod">
+                                Payment Method *
+                            </label>
 
-                <div className={ui.field}>
-                    <label
-                        className={ui.label}
-                        htmlFor="transactionId"
-                    >
-                        Transaction ID *
-                    </label>
+                            <select
+                                className={ui.input}
+                                id="paymentMethod"
+                                value={form.paymentMethod}
+                                onChange={(e) =>
+                                    updateField(
+                                        'paymentMethod',
+                                        e.target.value as PaymentMethod
+                                    )
+                                }
+                                required
+                            >
+                                {METHODS.map((m) => (
+                                    <option key={m} value={m}>
+                                        {label(m)}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-                    <input
-                        className={ui.input}
-                        id="transactionId"
-                        type="text"
-                        placeholder="TXN-0001"
-                        value={form.transactionId}
-                        onChange={(e) =>
-                            updateField(
-                                'transactionId',
-                                e.target.value
-                            )
-                        }
-                        required
-                    />
-                </div>
+                        <div className={ui.field}>
+                            <label className={ui.label} htmlFor="transactionId">
+                                Transaction ID *
+                            </label>
 
-                <div className={ui.field}>
-                    <label
-                        className={ui.label}
-                        htmlFor="paymentDate"
-                    >
-                        Payment Date *
-                    </label>
+                            <input
+                                className={ui.input}
+                                id="transactionId"
+                                type="text"
+                                placeholder="TXN-0001"
+                                value={form.transactionId}
+                                onChange={(e) =>
+                                    updateField(
+                                        'transactionId',
+                                        e.target.value
+                                    )
+                                }
+                                required
+                            />
+                        </div>
 
-                    <input
-                        className={ui.input}
-                        id="paymentDate"
-                        type="datetime-local"
-                        value={form.paymentDate}
-                        onChange={(e) =>
-                            updateField(
-                                'paymentDate',
-                                e.target.value
-                            )
-                        }
-                        required
-                    />
-                </div>
+                        <div className={ui.field}>
+                            <label className={ui.label} htmlFor="paymentDate">
+                                Payment Date *
+                            </label>
 
-                <div className={ui.field}>
-                    <label
-                        className={ui.label}
-                        htmlFor="status"
-                    >
-                        Status *
-                    </label>
+                            <input
+                                className={ui.input}
+                                id="paymentDate"
+                                type="datetime-local"
+                                value={form.paymentDate}
+                                onChange={(e) =>
+                                    updateField(
+                                        'paymentDate',
+                                        e.target.value
+                                    )
+                                }
+                                required
+                            />
+                        </div>
 
-                    <select
-                        className={ui.input}
-                        id="status"
-                        value={form.status}
-                        onChange={(e) =>
-                            updateField(
-                                'status',
-                                e.target.value as PaymentStatus
-                            )
-                        }
-                        required
-                    >
-                        {STATUSES.map((s) => (
-                            <option key={s} value={s}>
-                                {label(s)}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                        <div className={ui.field}>
+                            <label className={ui.label} htmlFor="status">
+                                Status *
+                            </label>
 
-                <div className={ui.actions}>
-                    <button
-                        type="submit"
-                        className={ui.btnPrimary}
-                        disabled={saving || loading}
-                    >
-                        {saving
-                            ? 'Saving...'
-                            : selectedId
-                                ? 'Update Payment'
-                                : 'Save Payment'}
-                    </button>
+                            <select
+                                className={ui.input}
+                                id="status"
+                                value={form.status}
+                                onChange={(e) =>
+                                    updateField(
+                                        'status',
+                                        e.target.value as PaymentStatus
+                                    )
+                                }
+                                required
+                            >
+                                {STATUSES.map((s) => (
+                                    <option key={s} value={s}>
+                                        {label(s)}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-                    <button
-                        type="button"
-                        className={ui.btnSecondary}
-                        onClick={clearForm}
-                    >
-                        Clear
-                    </button>
-                </div>
-            </form>
+                        <div className={ui.actions}>
+                            <button
+                                type="submit"
+                                className={ui.btnPrimary}
+                                disabled={saving || loading}
+                            >
+                                {saving
+                                    ? 'Saving...'
+                                    : selectedId
+                                        ? 'Update Payment'
+                                        : 'Save Payment'}
+                            </button>
 
-            <hr className={ui.hr} />
+                            <button
+                                type="button"
+                                className={ui.btnSecondary}
+                                onClick={clearForm}
+                            >
+                                Clear
+                            </button>
+                        </div>
+                    </form>
 
-            <h2 className={ui.h2}>Payment List</h2>
+                    <hr className={ui.hr} />
+                </>
+            )}
+
+            <h2 className={ui.h2}>
+                {canManagePayments ? 'Payment List' : 'My Payment History'}
+            </h2>
 
             <div className={ui.toolbar}>
                 <input
@@ -612,9 +625,7 @@ function PaymentManagement() {
                     type="search"
                     placeholder="Search by customer or transaction ID"
                     value={search}
-                    onChange={(e) =>
-                        setSearch(e.target.value)
-                    }
+                    onChange={(e) => setSearch(e.target.value)}
                     aria-label="Search payments"
                 />
 
@@ -628,9 +639,7 @@ function PaymentManagement() {
                     }
                     aria-label="Filter by status"
                 >
-                    <option value="ALL">
-                        All statuses
-                    </option>
+                    <option value="ALL">All statuses</option>
 
                     {STATUSES.map((s) => (
                         <option key={s} value={s}>
@@ -653,13 +662,17 @@ function PaymentManagement() {
                             <thead className={ui.thead}>
                             <tr>
                                 <th className={ui.th}>Transaction ID</th>
-                                <th className={ui.th}>Customer</th>
+                                {canManagePayments && (
+                                    <th className={ui.th}>Customer</th>
+                                )}
                                 <th className={ui.th}>Booking (Pickup)</th>
                                 <th className={ui.th}>Amount</th>
                                 <th className={ui.th}>Method</th>
                                 <th className={ui.th}>Payment Date</th>
                                 <th className={ui.th}>Status</th>
-                                <th className={ui.th}>Actions</th>
+                                {canManagePayments && (
+                                    <th className={ui.th}>Actions</th>
+                                )}
                             </tr>
                             </thead>
 
@@ -668,33 +681,30 @@ function PaymentManagement() {
                                 <tr className={ui.tr}>
                                     <td
                                         className={ui.td}
-                                        colSpan={8}
+                                        colSpan={canManagePayments ? 8 : 6}
                                     >
                                         No payments found.
                                     </td>
                                 </tr>
                             ) : (
                                 filteredPayments.map((p) => (
-                                    <tr
-                                        className={ui.tr}
-                                        key={p._id}
-                                    >
+                                    <tr className={ui.tr} key={p._id}>
                                         <td className={ui.td}>
                                             {p.transactionId}
                                         </td>
 
-                                        <td className={ui.td}>
-                                            {userName(p.userId)}
-                                        </td>
+                                        {canManagePayments && (
+                                            <td className={ui.td}>
+                                                {userName(p.userId)}
+                                            </td>
+                                        )}
 
                                         <td className={ui.td}>
                                             {bookingShort(p.bookingId)}
                                         </td>
 
                                         <td className={ui.td}>
-                                            {Number(
-                                                p.amount
-                                            ).toLocaleString()}
+                                            {Number(p.amount).toLocaleString()}
                                         </td>
 
                                         <td className={ui.td}>
@@ -713,27 +723,25 @@ function PaymentManagement() {
                                                 </span>
                                         </td>
 
-                                        <td className={ui.td}>
-                                            <button
-                                                type="button"
-                                                className={ui.btnEdit}
-                                                onClick={() =>
-                                                    editPayment(p)
-                                                }
-                                            >
-                                                Edit
-                                            </button>
+                                        {canManagePayments && (
+                                            <td className={ui.td}>
+                                                <button
+                                                    type="button"
+                                                    className={ui.btnEdit}
+                                                    onClick={() => editPayment(p)}
+                                                >
+                                                    Edit
+                                                </button>
 
-                                            <button
-                                                type="button"
-                                                className={ui.btnDelete}
-                                                onClick={() =>
-                                                    void deletePayment(p)
-                                                }
-                                            >
-                                                Delete
-                                            </button>
-                                        </td>
+                                                <button
+                                                    type="button"
+                                                    className={ui.btnDelete}
+                                                    onClick={() => void deletePayment(p)}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        )}
                                     </tr>
                                 ))
                             )}
