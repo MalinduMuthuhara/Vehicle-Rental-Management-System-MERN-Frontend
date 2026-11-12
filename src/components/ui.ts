@@ -12,6 +12,69 @@ const message = 'mb-[18px] rounded-lg border px-3.5 py-3 text-sm'
 export const ui = {
   // page + headings
   page: 'mx-auto w-full max-w-[1200px] p-4 text-gray-800 sm:p-6',
+  // authentication pages
+  authPage:
+      'flex min-h-screen items-center justify-center bg-slate-100 p-4 sm:p-6',
+
+  authShell:
+      'grid w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl shadow-slate-900/10 lg:grid-cols-2',
+
+  authAside:
+      'relative hidden min-h-[650px] flex-col justify-between overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950 p-10 text-white lg:flex',
+
+  authBrand:
+      'text-2xl font-extrabold tracking-wide text-white',
+
+  authBrandAccent:
+      'text-teal-400',
+
+  authAsideContent:
+      'relative z-10 my-auto max-w-sm',
+
+  authAsideTitle:
+      'mb-5 text-4xl font-extrabold leading-tight',
+
+  authAsideText:
+      'text-sm leading-7 text-slate-300',
+
+  authAsideFooter:
+      'text-xs text-slate-400',
+
+  authFormPanel:
+      'flex flex-col justify-center p-6 sm:p-10 lg:p-12',
+
+  authMobileBrand:
+      'mb-8 text-center text-xl font-extrabold text-slate-900 lg:hidden',
+
+  authHeading:
+      'mb-2 text-3xl font-extrabold tracking-tight text-slate-900',
+
+  authDescription:
+      'mb-8 text-sm text-slate-500',
+
+  authField:
+      'mb-5 flex flex-col gap-2',
+
+  authLabel:
+      'text-sm font-semibold text-slate-700',
+
+  authInput:
+      'min-h-[48px] w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-teal-600 focus:bg-white focus:ring-4 focus:ring-teal-600/10',
+
+  authTextarea:
+      'min-h-[90px] w-full resize-y rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-teal-600 focus:bg-white focus:ring-4 focus:ring-teal-600/10',
+
+  authButton:
+      'mt-2 flex min-h-[50px] w-full items-center justify-center rounded-xl bg-teal-700 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-teal-700/20 transition hover:-translate-y-0.5 hover:bg-teal-800 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60',
+
+  authSwitch:
+      'font-bold text-teal-700 transition hover:text-teal-900 hover:underline',
+
+  authError:
+      'mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700',
+
+  authSuccess:
+      'mb-5 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700',
   h1: 'mb-6 text-2xl font-bold text-gray-900 sm:text-[28px]',
   h2: 'mb-4 mt-7 text-xl font-semibold text-gray-900',
   hr: 'my-7 border-0 border-t border-gray-200',

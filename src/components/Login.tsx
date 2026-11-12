@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { loginApi, registerApi } from '../services/api'
+import { ui } from './ui'
 
 interface LoginProps {
     onLogin: () => void
@@ -42,12 +43,10 @@ function Login({ onLogin }: LoginProps) {
                 setUserName('')
                 setContactNumber('')
                 setAddress('')
-
             } else {
                 await loginApi({ email, password })
                 onLogin()
             }
-
         } catch (err) {
             setError(
                 err instanceof Error ? err.message : 'Something Went Wrong'
@@ -65,118 +64,210 @@ function Login({ onLogin }: LoginProps) {
     }
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
-            <form
-                onSubmit={handleSubmit}
-                className="w-full max-w-md rounded-lg bg-white p-8 shadow"
-            >
-                <h1 className="mb-2 text-center text-2xl font-bold">
-                    Vehicle Rental System
-                </h1>
+        <div className={ui.authPage}>
+            <div className={ui.authShell}>
 
-                <p className="mb-6 text-center text-gray-500">
-                    {isRegister
-                        ? 'Create Your Customer Account'
-                        : 'Login To Your Account'}
-                </p>
+                {/* Left side branding */}
+                <div className={ui.authAside}>
+                    <div className="relative z-10">
+                        <h1 className={ui.authBrand}>
+                            DRIVE<span className={ui.authBrandAccent}>EASE</span>
+                        </h1>
+                        <p className="mt-2 text-xs tracking-[0.3em] text-slate-400">
+                            VEHICLE RENTAL SYSTEM
+                        </p>
+                    </div>
 
-                {isRegister && (
-                    <>
-                        <label className="mb-2 block">User Name</label>
-                        <input
-                            type="text"
-                            value={userName}
-                            onChange={(e) => setUserName(e.target.value)}
-                            className="mb-4 w-full rounded border p-3"
-                            placeholder="Enter your name"
-                            required
-                        />
+                    <div className={ui.authAsideContent}>
+                        <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-teal-400/30 bg-teal-400/10 text-3xl">
+                            🚘
+                        </div>
 
-                    </>
-                )}
+                        <h2 className={ui.authAsideTitle}>
+                            Your Journey,
+                            <span className="block text-teal-400">
+                                Our Priority.
+                            </span>
+                        </h2>
 
-                <label className="mb-2 block">Email</label>
-                <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="mb-4 w-full rounded border p-3"
-                    placeholder="Enter your email"
-                    required
-                />
+                        <p className={ui.authAsideText}>
+                            Discover a better way to travel. Find your perfect
+                            vehicle, enjoy a smooth booking experience and
+                            make every journey memorable.
+                        </p>
 
-                <label className="mb-2 block">Password</label>
-                <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="mb-4 w-full rounded border p-3"
-                    placeholder="Enter your password"
-                    minLength={8}
-                    required
-                />
+                        <div className="mt-8 flex flex-wrap gap-3">
+                            <span className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs text-slate-300">
+                                ✓ Easy Booking
+                            </span>
+                            <span className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs text-slate-300">
+                                ✓ Reliable Vehicles
+                            </span>
+                        </div>
+                    </div>
 
-                {isRegister && (
-                    <>
-                        <label className="mb-2 block">Contact Number</label>
-                        <input
-                            type="text"
-                            value={contactNumber}
-                            onChange={(e) => setContactNumber(e.target.value)}
-                            className="mb-4 w-full rounded border p-3"
-                            placeholder="Enter your contact number"
-                            required
-                        />
-
-                        <label className="mb-2 block">Address</label>
-                        <textarea
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                            className="mb-4 w-full rounded border p-3"
-                            placeholder="Enter your address"
-                            required
-                        />
-                    </>
-                )}
-
-                {error && (
-                    <p className="mb-4 text-sm text-red-600">
-                        {error}
+                    <p className={ui.authAsideFooter}>
+                        © 2026 DriveEase. All rights reserved.
                     </p>
-                )}
 
-                {success && (
-                    <p className="mb-4 text-sm text-green-600">
-                        {success}
+                    {/* Decorative circles */}
+                    <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full border border-teal-400/10" />
+                    <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full border border-teal-400/10" />
+                    <div className="pointer-events-none absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-teal-500/10 blur-3xl" />
+                </div>
+
+                {/* Right side form */}
+                <div className={ui.authFormPanel}>
+
+                    <div className={ui.authMobileBrand}>
+                        DRIVE<span className="text-teal-600">EASE</span>
+                    </div>
+
+                    <div>
+                        <div className="mb-4 inline-flex rounded-full bg-teal-50 px-3 py-1.5 text-xs font-bold tracking-wide text-teal-700">
+                            {isRegister ? 'CREATE ACCOUNT' : 'WELCOME BACK'}
+                        </div>
+
+                        <h2 className={ui.authHeading}>
+                            {isRegister ? 'Create Account' : 'Welcome Back!'}
+                        </h2>
+
+                        <p className={ui.authDescription}>
+                            {isRegister
+                                ? 'Join us today and start your journey with us.'
+                                : 'Please enter your details to access your account.'}
+                        </p>
+                    </div>
+
+                    <form onSubmit={handleSubmit}>
+
+                        {isRegister && (
+                            <div className={ui.authField}>
+                                <label className={ui.authLabel}>
+                                    Full Name
+                                </label>
+                                <input
+                                    type="text"
+                                    value={userName}
+                                    onChange={(e) => setUserName(e.target.value)}
+                                    className={ui.authInput}
+                                    placeholder="Enter your full name"
+                                    autoComplete="name"
+                                    required
+                                />
+                            </div>
+                        )}
+
+                        <div className={ui.authField}>
+                            <label className={ui.authLabel}>
+                                Email Address
+                            </label>
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className={ui.authInput}
+                                placeholder="example@email.com"
+                                autoComplete="email"
+                                required
+                            />
+                        </div>
+
+                        <div className={ui.authField}>
+                            <label className={ui.authLabel}>
+                                Password
+                            </label>
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className={ui.authInput}
+                                placeholder="Enter your password"
+                                autoComplete={isRegister ? 'new-password' : 'current-password'}
+                                minLength={8}
+                                required
+                            />
+                        </div>
+
+                        {isRegister && (
+                            <>
+                                <div className={ui.authField}>
+                                    <label className={ui.authLabel}>
+                                        Contact Number
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={contactNumber}
+                                        onChange={(e) => setContactNumber(e.target.value)}
+                                        className={ui.authInput}
+                                        placeholder="Enter your contact number"
+                                        autoComplete="tel"
+                                        required
+                                    />
+                                </div>
+
+                                <div className={ui.authField}>
+                                    <label className={ui.authLabel}>
+                                        Address
+                                    </label>
+                                    <textarea
+                                        value={address}
+                                        onChange={(e) => setAddress(e.target.value)}
+                                        className={ui.authTextarea}
+                                        placeholder="Enter your address"
+                                        autoComplete="street-address"
+                                        required
+                                    />
+                                </div>
+                            </>
+                        )}
+
+                        {error && (
+                            <div className={ui.authError}>
+                                {error}
+                            </div>
+                        )}
+
+                        {success && (
+                            <div className={ui.authSuccess}>
+                                {success}
+                            </div>
+                        )}
+
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className={ui.authButton}
+                        >
+                            {loading
+                                ? 'Please Wait...'
+                                : isRegister
+                                    ? 'Create My Account →'
+                                    : 'Login to Account →'}
+                        </button>
+                    </form>
+
+                    <div className="mt-8 border-t border-slate-100 pt-6 text-center">
+                        <p className="text-sm text-slate-500">
+                            {isRegister
+                                ? 'Already have an account?'
+                                : "Don't have an account?"}
+
+                            <button
+                                type="button"
+                                onClick={switchMode}
+                                className={`ml-2 ${ui.authSwitch}`}
+                            >
+                                {isRegister ? 'Login' : 'Create Account'}
+                            </button>
+                        </p>
+                    </div>
+
+                    <p className="mt-8 text-center text-xs text-slate-400">
+                        Secure access to your vehicle rental account.
                     </p>
-                )}
-
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full rounded bg-blue-600 p-3 text-white hover:bg-blue-700 disabled:opacity-50"
-                >
-                    {loading
-                        ? 'Please Wait...'
-                        : isRegister
-                            ? 'Register'
-                            : 'Login'}
-                </button>
-
-                <p className="mt-6 text-center text-sm text-gray-600">
-                    {isRegister
-                        ? 'Already have an account?'
-                        : "Don't have an account?"}
-
-                    <button
-                        type="button"
-                        onClick={switchMode}
-                        className="ml-2 font-semibold text-blue-600 hover:underline"
-                    >
-                        {isRegister ? 'Login' : 'Register'}
-                    </button>
-                </p>
-            </form>
+                </div>
+            </div>
         </div>
     )
 }

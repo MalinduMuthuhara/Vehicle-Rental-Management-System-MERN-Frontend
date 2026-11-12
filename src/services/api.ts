@@ -224,23 +224,35 @@ export type VehicleDocumentData = Omit<VehicleDocument, '_id' | 'vehicleId'> & {
     vehicleId: string
 }
 
-//Review Interface
+// Review Interface
 export type ReviewStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
+
 export interface Review {
     _id: string
-    userId : string | { _id: string;userName?: string}
-    vehicleId : string | { _id: string;registrationNumber?: string}
-    bookingId : string | { _id: string }
-    rating : number
-    comment : string
-    reviewDate : string
-    status : ReviewStatus
+    userId: string | { _id: string; userName?: string }
+    vehicleId: string | { _id: string; registrationNumber?: string }
+    bookingId: string | { _id: string }
+    rating: number
+    comment: string
+    reviewDate: string
+    status: ReviewStatus
 }
-export type ReviewData = Omit<Review,'_id'|'userId'|'vehicleId'|'bookingId'>&{
-    userId : string
-    vehicleId : string
-    bookingId : string
+
+export interface ReviewCreateData {
+    bookingId: string
+    vehicleId: string
+    rating: number
+    comment: string
 }
+
+export interface ReviewUpdateData {
+    rating?: number
+    comment?: string
+    status?: ReviewStatus
+}
+
+// Backward compatibility
+export type ReviewData = ReviewCreateData
 
 // Damage Report Interface
 export type DamageReportStatus = 'REPORTED' | 'ASSESSED' | 'REPAIRED' | 'CLOSED'
@@ -262,6 +274,17 @@ export type DamageReportData = Omit<DamageReport,'_id' | 'rentalId' | 'vehicleId
     vehicleId: string
     reportedBy: string
 }
+
+// Profit Interface
+export interface Profit {
+    message: string
+    totalRevenue: number
+    maintenanceExpenses: number
+    damageExpenses: number
+    totalExpenses: number
+    netProfit: number
+}
+
 
 
 
@@ -351,6 +374,8 @@ export const paymentApi = makeApi<Payment,PaymentData>('/payments')
 export const invoiceApi = makeApi<Invoice,InvoiceData>('/invoices')
 export const maintenanceApi = makeApi<VehicleMaintenance, VehicleMaintenanceData>('/vehicle-maintenances')
 export const documentApi = makeApi<VehicleDocument, VehicleDocumentData>('/vehicle-documents')
-export const reviewApi = makeApi<Review,ReviewData>('/reviews')
+export const reviewApi = makeApi<Review,ReviewCreateData,ReviewUpdateData>('/reviews')
 export const damageReportApi = makeApi<DamageReport, DamageReportData>('/damage-reports')
+export const profitApi = {getProfit: () => request<Profit>('/profits'),}
+
 

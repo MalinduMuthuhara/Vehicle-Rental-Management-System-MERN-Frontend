@@ -14,6 +14,7 @@ import VehicleDocument from './components/VehicleDocument'
 import Review from './components/Review'
 import DamageReportManagement from './components/DamageReportManagement'
 import { logoutApi } from './services/api'
+import ProfitManagement from './components/ProfitManagement'
 
 type Role = 'ADMIN' | 'EMPLOYEE' | 'CUSTOMER'
 
@@ -30,6 +31,7 @@ type Page =
     | 'vehicle-document'
     | 'review'
     | 'damage-report'
+    | 'profit'
 
 const menu: {
     page: Page
@@ -48,6 +50,7 @@ const menu: {
     { page: 'vehicle-document', label: 'Vehicle Documents', roles: ['ADMIN', 'EMPLOYEE'] },
     { page: 'review', label: 'Reviews', roles: ['ADMIN', 'CUSTOMER'] },
     { page: 'damage-report', label: 'Damage Reports', roles: ['ADMIN', 'EMPLOYEE'] },
+    { page: 'profit', label: 'Profit Management', roles: ['ADMIN'] },
 ]
 
 function App() {
@@ -125,6 +128,8 @@ function App() {
                 {page === 'vehicle-document' && <VehicleDocument />}
                 {page === 'review' && <Review />}
                 {page === 'damage-report' && <DamageReportManagement />}
+                {page === 'profit' && user.role === 'ADMIN' && <ProfitManagement />}
+
 
             </div>
         </div>
