@@ -10,6 +10,20 @@ export interface LoginData {
     email: string
     password: string
 }
+
+export interface RegisterData {
+    userName: string
+    email: string
+    password: string
+    contactNumber: string
+    address: string
+}
+
+export interface RegisterResponse {
+    message: string
+    body: User
+}
+
 //AUTH RESPONSE INTERFACE
 export interface AuthResponse {
     message: string
@@ -280,6 +294,14 @@ async function request<T>(
 
     return body as T
 }
+
+export const registerApi = async (data: RegisterData) => {
+    return request<RegisterResponse>('/users/register', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    })
+}
+
 export const loginApi = async (data: LoginData) => {
     const response = await request<AuthResponse>('/auth/login', {
         method: 'POST',
