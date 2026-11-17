@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { categoryApi } from '../services/api'
 import type { VehicleCategory } from '../services/api'
-import { ui, badgeTone } from './ui'
+import { ui, badgeTone } from '../lib/ui.ts'
 
 type CategoryStatus = VehicleCategory['status']
 

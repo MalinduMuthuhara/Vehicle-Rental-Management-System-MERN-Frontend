@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { branchApi } from '../services/api'
 import type { Branch } from '../services/api'
-import { ui, badgeTone } from './ui'
+import { ui, badgeTone } from '../lib/ui.ts'
 
 type BranchStatus = Branch['status']
 

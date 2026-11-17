@@ -18,7 +18,7 @@ import type {
     UserRole,
 } from '../services/api'
 
-import { ui, badgeTone } from './ui'
+import { ui, badgeTone } from '../lib/ui.ts'
 
 const STATUSES: ReviewStatus[] = [
     'PENDING',

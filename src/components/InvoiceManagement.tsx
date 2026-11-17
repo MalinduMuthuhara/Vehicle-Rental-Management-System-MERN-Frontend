@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { invoiceApi, bookingApi, userApi } from '../services/api'
 import type { Invoice, InvoiceData, InvoiceStatus, Booking, User } from '../services/api'
-import { ui, badgeTone } from './ui'
+import { ui, badgeTone } from '../lib/ui.ts'
 
 const STATUSES: InvoiceStatus[] = ['DRAFT', 'ISSUED', 'PAID', 'CANCELLED']
 

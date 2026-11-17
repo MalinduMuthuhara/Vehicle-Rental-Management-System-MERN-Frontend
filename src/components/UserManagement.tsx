@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { userApi } from '../services/api'
 import type { User } from '../services/api'
-import { ui } from './ui'
+import { ui } from '../lib/ui.ts'
 
 type UserRole = 'CUSTOMER' | 'EMPLOYEE' | 'ADMIN'
 type UserStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'

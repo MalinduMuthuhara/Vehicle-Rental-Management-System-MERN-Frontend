@@ -9,7 +9,7 @@ import type {
   FuelType,
   VehicleStatus,
 } from '../services/api'
-import { ui, badgeTone } from './ui'
+import { ui, badgeTone } from '../lib/ui.ts'
 
 const TRANSMISSIONS: VehicleTransmission[] = ['AUTOMATIC', 'MANUAL']
 const FUEL_TYPES: FuelType[] = ['PETROL', 'DIESEL', 'HYBRID', 'ELECTRIC']

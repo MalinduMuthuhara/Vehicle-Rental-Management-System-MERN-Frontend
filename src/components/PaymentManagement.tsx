@@ -8,7 +8,7 @@ import type {
     Booking,
     User,
 } from '../services/api'
-import { ui, badgeTone } from './ui'
+import { ui, badgeTone } from '../lib/ui.ts'
 
 const METHODS: PaymentMethod[] = ['CASH', 'CARD', 'ONLINE']
 

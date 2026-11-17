@@ -15,6 +15,9 @@ import Review from './components/Review'
 import DamageReportManagement from './components/DamageReportManagement'
 import { logoutApi } from './services/api'
 import ProfitManagement from './components/ProfitManagement'
+import CustomerApp from './customer/CustomerApp'
+import Logo from './customer/Logo'
+import { BRAND } from './customer/lib'
 
 type Role = 'ADMIN' | 'EMPLOYEE' | 'CUSTOMER'
 
@@ -74,47 +77,62 @@ function App() {
         return <Login onLogin={() => setLoggedIn(true)} />
     }
 
+    // Customers get a storefront; staff keep the admin panel below.
+    if (user.role === 'CUSTOMER') {
+        return <CustomerApp onLogout={handleLogout} />
+    }
+
     const visibleMenu = menu.filter(item =>
         item.roles.includes(user.role)
     )
 
     return (
-        <div className="flex min-h-screen flex-col bg-gray-100 text-gray-900 md:flex-row">
+        <div className="flex min-h-screen flex-col bg-[#f3f4f6] font-body text-ink md:flex-row">
 
-            <aside className="w-full shrink-0 bg-[#222] p-4 md:w-[220px]">
+            <aside className="flex w-full shrink-0 flex-col bg-panel md:sticky md:top-0 md:h-screen md:w-[250px] md:overflow-y-auto">
 
-                <h2 className="mb-2 text-xl font-bold text-white">
-                    Vehicle Rental
-                </h2>
+                <button
+                    onClick={() => setPage('vehicles')}
+                    aria-label={`${BRAND} home`}
+                    className="h-24 w-full shrink-0 cursor-pointer bg-brand"
+                >
+                    <Logo />
+                </button>
 
-                <p className="mb-5 text-sm text-gray-300">
-                    {user.userName} ({user.role})
-                </p>
+                <div className="border-b border-white/10 px-5 py-4">
+                    <p className="text-sm font-bold text-white">{user.userName}</p>
+                    <p className="text-xs text-gray-400">
+                        {user.role === 'ADMIN' ? 'Administrator' : 'Staff'}
+                    </p>
+                </div>
 
-                {visibleMenu.map(item => (
-                    <button
-                        key={item.page}
-                        className={`mb-1.5 w-full cursor-pointer border-0 px-2.5 py-2.5 text-left text-white ${
-                            page === item.page
-                                ? 'bg-blue-600'
-                                : 'bg-[#444] hover:bg-[#555]'
-                        }`}
-                        onClick={() => setPage(item.page)}
-                    >
-                        {item.label}
-                    </button>
-                ))}
+                <nav aria-label="Admin" className="flex-1 py-2">
+                    {visibleMenu.map(item => (
+                        <button
+                            key={item.page}
+                            aria-current={page === item.page ? 'page' : undefined}
+                            className={`block w-full cursor-pointer border-0 px-5 py-3 text-left text-[15px] font-bold transition-colors ${
+                                page === item.page
+                                    ? 'bg-brand text-white'
+                                    : 'bg-transparent text-gray-400 hover:bg-white/5 hover:text-white'
+                            }`}
+                            onClick={() => setPage(item.page)}
+                        >
+                            {item.label}
+                        </button>
+                    ))}
+                </nav>
 
                 <button
                     onClick={handleLogout}
-                    className="mt-5 w-full rounded bg-red-600 p-2.5 text-white hover:bg-red-700"
+                    className="m-4 cursor-pointer border border-white/25 px-4 py-2.5 text-[15px] font-bold text-white transition-colors hover:bg-white/10"
                 >
-                    Logout
+                    Log out
                 </button>
 
             </aside>
 
-            <div className="min-w-0 flex-1 p-4 md:p-6">
+            <div className="min-w-0 flex-1 p-4 md:p-8">
 
                 {page === 'users' && user.role === 'ADMIN' && <UserManagement />}
                 {page === 'vehicles' && <VehicleManagement />}
@@ -129,7 +147,6 @@ function App() {
                 {page === 'review' && <Review />}
                 {page === 'damage-report' && <DamageReportManagement />}
                 {page === 'profit' && user.role === 'ADMIN' && <ProfitManagement />}
-
 
             </div>
         </div>

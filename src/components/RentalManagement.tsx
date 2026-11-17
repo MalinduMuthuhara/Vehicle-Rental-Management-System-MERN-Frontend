@@ -8,7 +8,7 @@ import type {
     User,
     Vehicle,
 } from '../services/api'
-import { ui, badgeTone } from './ui'
+import { ui, badgeTone } from '../lib/ui.ts'
 
 const STATUSES: RentalStatus[] = ['ONGOING', 'COMPLETED', 'CANCELLED']
 

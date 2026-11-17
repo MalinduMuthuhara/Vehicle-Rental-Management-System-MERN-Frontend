@@ -1,1 +1,20 @@
 @import "tailwindcss";
+
+/* Customer storefront theme (the admin panel keeps the default Tailwind look) */
+@theme {
+  --color-brand: #e60000;
+  --color-brand-dark: #bd0000;
+  --color-ink: #1f2328;
+  --color-panel: #1c2026;
+  --font-display: "Raleway", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Roboto", "Helvetica Neue", Arial, sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

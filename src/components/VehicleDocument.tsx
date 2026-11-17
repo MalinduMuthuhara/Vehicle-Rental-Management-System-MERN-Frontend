@@ -7,7 +7,7 @@ import type {
     DocumentStatus,
     Vehicle,
 } from '../services/api'
-import { ui, badgeTone } from './ui'
+import { ui, badgeTone } from '../lib/ui.ts'
 
 const TYPES: DocumentType[] = ['REGISTRATION', 'INSURANCE', 'LICENSE']
 const STATUSES: DocumentStatus[] = ['VALID', 'EXPIRING', 'EXPIRED', 'INVALID']
@@ -613,7 +613,7 @@ function VehicleDocumentManagement() {
 
                                         <td className={ui.td}>
                                             <a
-                                                className="font-semibold text-teal-700 hover:underline"
+                                                className="font-semibold text-brand hover:underline"
                                                 href={d.fileUrl}
                                                 target="_blank"
                                                 rel="noreferrer"

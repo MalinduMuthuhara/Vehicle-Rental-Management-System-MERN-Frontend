@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { loginApi, registerApi } from '../services/api'
-import { ui } from './ui'
+import { ui } from '../lib/ui.ts'
 
 interface LoginProps {
     onLogin: () => void
@@ -71,7 +71,7 @@ function Login({ onLogin }: LoginProps) {
                 <div className={ui.authAside}>
                     <div className="relative z-10">
                         <h1 className={ui.authBrand}>
-                            DRIVE<span className={ui.authBrandAccent}>EASE</span>
+                            RENT <span className={ui.authBrandAccent}>IT</span>
                         </h1>
                         <p className="mt-2 text-xs tracking-[0.3em] text-slate-400">
                             VEHICLE RENTAL SYSTEM
@@ -79,13 +79,13 @@ function Login({ onLogin }: LoginProps) {
                     </div>
 
                     <div className={ui.authAsideContent}>
-                        <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-teal-400/30 bg-teal-400/10 text-3xl">
+                        <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-red-500/30 bg-red-500/10 text-3xl">
                             🚘
                         </div>
 
                         <h2 className={ui.authAsideTitle}>
                             Your Journey,
-                            <span className="block text-teal-400">
+                            <span className="block text-red-500">
                                 Our Priority.
                             </span>
                         </h2>
@@ -107,24 +107,24 @@ function Login({ onLogin }: LoginProps) {
                     </div>
 
                     <p className={ui.authAsideFooter}>
-                        © 2026 DriveEase. All rights reserved.
+                        © 2026 Rent It. All rights reserved.
                     </p>
 
                     {/* Decorative circles */}
-                    <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full border border-teal-400/10" />
-                    <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full border border-teal-400/10" />
-                    <div className="pointer-events-none absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-teal-500/10 blur-3xl" />
+                    <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full border border-red-500/10" />
+                    <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full border border-red-500/10" />
+                    <div className="pointer-events-none absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-red-500/10 blur-3xl" />
                 </div>
 
                 {/* Right side form */}
                 <div className={ui.authFormPanel}>
 
                     <div className={ui.authMobileBrand}>
-                        DRIVE<span className="text-teal-600">EASE</span>
+                        RENT <span className="text-red-600">IT</span>
                     </div>
 
                     <div>
-                        <div className="mb-4 inline-flex rounded-full bg-teal-50 px-3 py-1.5 text-xs font-bold tracking-wide text-teal-700">
+                        <div className="mb-4 inline-flex rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold tracking-wide text-red-700">
                             {isRegister ? 'CREATE ACCOUNT' : 'WELCOME BACK'}
                         </div>
 

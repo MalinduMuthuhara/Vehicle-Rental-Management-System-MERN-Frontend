@@ -8,7 +8,7 @@ import type {
     Vehicle,
     User,
 } from '../services/api'
-import { ui, badgeTone } from './ui'
+import { ui, badgeTone } from '../lib/ui.ts'
 
 const TYPES: MaintenanceType[] = ['ROUTINE', 'REPAIR', 'INSPECTION']
 const STATUSES: MaintenanceStatus[] = ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']

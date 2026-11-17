@@ -40,7 +40,7 @@ function ProfitManagement() {
         {
             title: 'Total Revenue',
             amount: profit.totalRevenue,
-            color: 'bg-blue-100 text-blue-700',
+            color: 'bg-red-100 text-red-700',
         },
         {
             title: 'Maintenance Expenses',
@@ -81,7 +81,7 @@ function ProfitManagement() {
 
                 <button
                     onClick={() => void loadProfit()}
-                    className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                    className="rounded bg-brand px-4 py-2 text-white hover:bg-brand-dark"
                 >
                     Retry
                 </button>
@@ -105,7 +105,7 @@ function ProfitManagement() {
 
                 <button
                     onClick={() => void loadProfit()}
-                    className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                    className="rounded bg-brand px-4 py-2 text-white hover:bg-brand-dark"
                 >
                     Refresh
                 </button>
